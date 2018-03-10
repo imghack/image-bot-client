@@ -1,18 +1,39 @@
 import React, { Component } from 'react';
 import './App.css';
+import io from 'socket.io-client';
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          error: null,
-          isLoaded: false,
-          items: []
+            error: null,
+            isLoaded: false,
+            items: [],
+            logs: []
         };
     }
 
   componentDidMount() {
     const me = this;
+
+      //eslint-disable-next-line
+      var socket = io.connect('http://' + document.domain + ':' + '8080');
+      socket.on('connect', () => {
+          socket.emit('my event', {data: 'I\'m connected!'});
+          console.log('connected');
+
+          socket.on('message', (data) => {
+              // console.log(data)
+              // this.state.logs.push(data);
+
+              this.setState({
+                  logs: [...this.state.logs, data.users]
+              })
+              // var li = document.createElement('li');
+              // li.innerText = JSON.stringify(data);
+              // document.getElementById('log').appendChild(li)
+          })
+      });
 
     fetch("http://0.0.0.0:8080/api/images")
       .then(res => res.json())
@@ -33,7 +54,7 @@ class App extends Component {
   }
 
   render() {
-       const { error, isLoaded, items } = this.state;
+       const { error, isLoaded, items, logs } = this.state;
     if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
@@ -41,6 +62,12 @@ class App extends Component {
     } else {
       return (
         <ul>
+            {logs.map(log => (
+                <li>
+                    {log}
+                </li>
+            ))}
+
           {items.map(item => (
               <li>
                   <img src={item.url.toString()}></img>
