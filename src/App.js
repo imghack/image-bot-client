@@ -14,7 +14,7 @@ class App extends Component {
   componentDidMount() {
     const me = this;
 
-    fetch("http://localhost:8080/api/images")
+    fetch("http://0.0.0.0:8080/api/images")
       .then(res => res.json())
       .then(
         (result) => {
